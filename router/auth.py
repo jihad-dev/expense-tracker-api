@@ -84,7 +84,7 @@ def register_user(db: db_dependency, newUser: createUsers):
         hashed_password=bcrypt_context.hash(newUser.password),
     )
 
-    db.add(user_model)
+    db.add(user_model)    
     db.commit()
 
     return {"status": "Successful", "message": "User created successfully"}

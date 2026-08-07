@@ -13,7 +13,6 @@ from router.auth import get_current_user
 app = FastAPI()
 app.include_router(auth.router)
 
-# Create database tables
 models.Base.metadata.create_all(bind=engine)
 
 
@@ -54,6 +53,34 @@ def home():
     return "Hello Next Level Developer💀"
 
 
+@app.get("/transactions/filter")
+def filter_transactions(
+    db: db_dependency,
+    user: user_dependency,
+    type: Optional[str] = None,
+    category: Optional[str] = None,
+    minimum_amount: Optional[float] = None,
+    maximum_amount: Optional[float] = None,
+):
+    if user is None:
+        raise HTTPException(status_code=401, detail="Failed Authentication!")
+
+    # Start query with logged-in user's transactions
+    query = db.query(Transactions).filter(Transactions.owner_id == user.get("id"))
+
+    # -------- Add filters if provided in URL  -------- #
+    if type:
+        query = query.filter(Transactions.type == type)
+    if category:
+        query = query.filter(Transactions.category == category)
+    if minimum_amount:
+        query = query.filter(Transactions.amount >= minimum_amount)
+    if maximum_amount:
+        query = query.filter(Transactions.amount <= maximum_amount)
+
+    return query.all()
+
+
 @app.post("/transactions", status_code=status.HTTP_201_CREATED)
 def create_transaction(
     user: user_dependency,
@@ -66,7 +93,7 @@ def create_transaction(
             detail="Failed Authentication!",
         )
 
-    # Convert Pydantic model to dictionary and inject owner_id
+    # ---- Convert Pydantic model to dictionary and inject owner_id  -----
     transaction_model = Transactions(
         **newTransaction.model_dump(), owner_id=user.get("id")
     )
@@ -158,7 +185,6 @@ def update_transaction(
     db.commit()
     db.refresh(transaction)
 
-    # Return plain dict -> FastAPI handles date serialization automatically
     return {
         "message": "Transaction updated successfully",
         "updated_fields": update_data,
