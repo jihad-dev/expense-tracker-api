@@ -13,7 +13,7 @@ from jose import jwt
 
 router = APIRouter()
 bcrypt_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-oauth2_bearer = OAuth2PasswordBearer(tokenUrl="/auth/login")
+OAuth2_barear = OAuth2PasswordBearer(tokenUrl="/auth/login")
 SECRET_KEY = "562de2311ff38d4b0543891bada2dfd931e8547071a0b25aa7f87c43ef1b4f43"
 ALGORITHM = "HS256"
 
@@ -50,6 +50,16 @@ def get_db():
 
 
 db_dependency = Annotated[Session, Depends(get_db)]
+def get_current_user(token: Annotated[str, Depends(OAuth2_barear)]):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        username: str = payload.get("sub")
+        user_id: int = payload.get("id")
+        if username is None or user_id is None:
+            raise HTTPException(status_code=404, detail="user not found!")
+        return {"username": username, "id": user_id}
+    except:
+        raise HTTPException(status_code=404, detail="user not found!")
 
 
 @router.post("/auth/register", status_code=status.HTTP_201_CREATED)
