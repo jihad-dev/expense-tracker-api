@@ -125,7 +125,7 @@ def get_transactions(db: db_dependency, user: user_dependency):
     return all_transactions
 
 
-@app.get("/transactions/{transaction_id}",status_code=status.HTTP_200_OK)
+@app.get("/transactions/{transaction_id}", status_code=status.HTTP_200_OK)
 def get_specific_transaction(
     transaction_id: int, db: db_dependency, user: user_dependency
 ):
