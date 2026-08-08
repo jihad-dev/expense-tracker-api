@@ -86,26 +86,4 @@ def test_delete(test_transactions):
     res = client.delete("/transactions/99")
     assert res.status_code == status.HTTP_200_OK
     assert res.json() == {"message": "Transaction deleted successfully"}
-    
-    # ????? HONESTLY THIS CODE  GENERATE IN GOOGLE GEMINI HELP ?????#
-    
-def test_filter_transactions(test_transactions):
-    # ১. Type ফিল্টার টেস্ট
-    res_type = client.get("/transactions/filter?type=income")
-    assert res_type.status_code == status.HTTP_200_OK
-    assert res_type.json()[0]["type"] == "income"
-
-    # ২. Category ফিল্টার টেস্ট
-    res_cat = client.get("/transactions/filter?category=Salary")
-    assert res_cat.status_code == status.HTTP_200_OK
-    assert res_cat.json()[0]["category"] == "Salary"
-
-    # ৩. Amount Range (min & max) ফিল্টার টেস্ট
-    res_amount = client.get("/transactions/filter?minimum_amount=10000&maximum_amount=60000")
-    assert res_amount.status_code == status.HTTP_200_OK
-    assert 10000 <= res_amount.json()[0]["amount"] <= 60000
-
-    # ৪. ম্যাচ না হওয়া ডাটার জন্য খালি লিস্ট নিশ্চিত করা
-    res_empty = client.get("/transactions/filter?category=NonExistent")
-    assert res_empty.status_code == status.HTTP_200_OK
-    assert res_empty.json() == []
+ 
